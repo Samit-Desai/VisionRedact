@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Pure domain model. No package references by design: no Emgu CV, ONNX, WPF or Prism. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>VisionRedact.Domain</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="VisionRedact.Domain.Tests" />
+  </ItemGroup>
+</Project>

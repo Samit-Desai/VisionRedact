@@ -1,0 +1,25 @@
+bin/
+obj/
+.vs/
+*.user
+*.suo
+TestResults/
+artifacts/
+# Large media and models are never committed
+*.mp4
+*.mov
+*.mkv
+*.avi
+models/*.onnx
+models/testdata/
+# Third-party native binaries downloaded by scripts (licence: must come from the vendor)
+native/
+ffmpeg/
+__pycache__/
+/media/
+~$*
+# Generated Word documents are not part of the repository
+docs/*.docx
+
+# The articles' own animations (small) are part of the docs
+!docs/blog/*/visuals/*.mp4

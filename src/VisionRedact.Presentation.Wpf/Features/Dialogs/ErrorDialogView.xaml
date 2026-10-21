@@ -1,0 +1,51 @@
+<UserControl x:Class="VisionRedact.Presentation.Wpf.Features.Dialogs.ErrorDialogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:dialogs="clr-namespace:VisionRedact.Presentation.Wpf.Features.Dialogs"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=dialogs:ErrorDialogViewModel}"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Width="520">
+
+    <prism:Dialog.WindowStyle>
+        <Style TargetType="Window" BasedOn="{StaticResource Window.Themed}">
+            <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterOwner" />
+            <Setter Property="ResizeMode" Value="NoResize" />
+            <Setter Property="ShowInTaskbar" Value="False" />
+            <Setter Property="SizeToContent" Value="WidthAndHeight" />
+        </Style>
+    </prism:Dialog.WindowStyle>
+
+    <StackPanel Margin="20">
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="{Binding Glyph}" FontFamily="{StaticResource Font.Icons}" FontSize="22" VerticalAlignment="Center">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="{StaticResource Brush.Accent}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsError}" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource Brush.Danger}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+            <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="SemiBold" Margin="10,0,0,0" VerticalAlignment="Center" />
+        </StackPanel>
+
+        <TextBlock Text="{Binding Message}" TextWrapping="Wrap" Margin="0,14,0,0" />
+
+        <Expander Header="Technical details" Margin="0,14,0,0" Foreground="{StaticResource Brush.TextMuted}"
+                  Visibility="{Binding HasDetails, Converter={StaticResource BoolToVisibility}}">
+            <TextBox Text="{Binding Details, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" MaxHeight="200"
+                     VerticalScrollBarVisibility="Auto" FontFamily="{StaticResource Font.Mono}" FontSize="11" Margin="0,6,0,0"
+                     Background="{StaticResource Brush.Surface}" Foreground="{StaticResource Brush.Text}" BorderBrush="{StaticResource Brush.Border}" />
+        </Expander>
+
+        <Button Content="Close" Style="{StaticResource Button.Primary}" HorizontalAlignment="Right" Margin="0,18,0,0" MinWidth="90"
+                Command="{Binding CloseCommand}" IsDefault="True" IsCancel="True" />
+    </StackPanel>
+</UserControl>

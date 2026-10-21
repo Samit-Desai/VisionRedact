@@ -1,0 +1,83 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:VisionRedact.Presentation.Wpf.Controls">
+
+    <!--
+        default templates for the custom controls. a restyle only has to keep the PART_ names the code
+        looks for (PART_Track, PART_Playhead, PART_HoverPreview, PART_Input)
+    -->
+
+    <Style TargetType="{x:Type controls:VideoTimelineControl}">
+        <Setter Property="Height" Value="40" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:VideoTimelineControl}">
+                    <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                        <Grid ClipToBounds="False">
+                            <controls:TimelineTrack x:Name="PART_Track" VerticalAlignment="Bottom" />
+                            <Canvas x:Name="PART_Playhead" Width="12" HorizontalAlignment="Left" VerticalAlignment="Stretch">
+                                <Path Data="M0,0 L12,0 L12,6 L6,12 L0,6 Z" Fill="#77E0FE" Canvas.Top="12" />
+                                <Rectangle Width="2" Fill="#77E0FE" Canvas.Left="5" Canvas.Top="22" Height="18" />
+                            </Canvas>
+                            <!-- hover card: a zero-height Canvas on the top edge, the card hangs up from it (Canvas.Bottom)
+                                 over the video. the control shows / hides it and moves it w/ a TranslateTransform.
+                                 not hit-testable, so it never takes the mouse. a Popup was the other option, but
+                                 it's a separate window and costs more to move (ADR-0023) -->
+                            <Canvas x:Name="PART_HoverPreview" Width="200" Height="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                <Border Canvas.Bottom="8" Width="200" Padding="3" CornerRadius="5"
+                                        Background="#F01B1E23" BorderBrush="#5577E0FE" BorderThickness="1">
+                                    <StackPanel>
+                                        <Border Background="Black" Width="192" Height="108" CornerRadius="3">
+                                            <Image Source="{TemplateBinding HoverPreview}" Stretch="Uniform" RenderOptions.BitmapScalingMode="Linear" />
+                                        </Border>
+                                        <!-- RenderOnlyText: the time changes as the pointer moves, a TextBlock would cost a layout pass each time -->
+                                        <controls:RenderOnlyText Text="{TemplateBinding HoverText}" Foreground="White" FontSize="11"
+                                                                 TextAlignment="Center" Width="192" Height="15" Margin="0,3,0,1" />
+                                    </StackPanel>
+                                </Border>
+                            </Canvas>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.4" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type controls:VideoSurface}">
+        <Setter Property="Background" Value="Black" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:VideoSurface}">
+                    <Border Background="{TemplateBinding Background}" ClipToBounds="True">
+                        <Grid>
+                            <!-- Linear (bilinear, on the GPU). the frame is usually shown smaller than its px size, and
+                                 NearestNeighbor (tried for a while) dropped whole rows and columns, so edges looked blocky -->
+                            <Image x:Name="PART_Frame" Source="{TemplateBinding FrameSource}" Stretch="Uniform" RenderOptions.BitmapScalingMode="Linear" />
+                            <controls:BoxOverlay x:Name="PART_Detections" IsHitTestVisible="False"
+                                                 Boxes="{TemplateBinding DetectionBoxes}"
+                                                 VideoWidth="{TemplateBinding VideoWidth}" VideoHeight="{TemplateBinding VideoHeight}" />
+                            <controls:BoxOverlay x:Name="PART_Redactions" IsHitTestVisible="False"
+                                                 Boxes="{TemplateBinding RedactionBoxes}"
+                                                 PreviewBox="{TemplateBinding EditPreview}"
+                                                 VideoWidth="{TemplateBinding VideoWidth}" VideoHeight="{TemplateBinding VideoHeight}" />
+                            <Border x:Name="PART_Input" Background="Transparent" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="ShowDetections" Value="False">
+                            <Setter TargetName="PART_Detections" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

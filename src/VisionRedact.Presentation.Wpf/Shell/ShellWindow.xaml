@@ -1,0 +1,96 @@
+<Window x:Class="VisionRedact.Presentation.Wpf.Shell.ShellWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:shell="clr-namespace:VisionRedact.Presentation.Wpf.Shell"
+        xmlns:wpf="clr-namespace:VisionRedact.Presentation.Wpf"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=shell:ShellViewModel}"
+        Title="{Binding Title}"
+        Style="{StaticResource Window.Themed}"
+        Width="1440" Height="880" MinWidth="1000" MinHeight="620"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.InputBindings>
+        <KeyBinding Modifiers="Control" Key="O" Command="{Binding OpenVideoCommand}" />
+        <KeyBinding Modifiers="Control+Shift" Key="O" Command="{Binding OpenProjectCommand}" />
+        <KeyBinding Modifiers="Control" Key="S" Command="{Binding SaveProjectCommand}" />
+        <KeyBinding Modifiers="Control" Key="E" Command="{Binding ExportCommand}" />
+    </Window.InputBindings>
+
+    <DockPanel>
+        <!-- Header -->
+        <Border DockPanel.Dock="Top" Background="{StaticResource Brush.Header}" BorderBrush="{StaticResource Brush.Accent}" BorderThickness="0,0,0,2" Padding="16,10">
+            <DockPanel LastChildFill="False">
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="&#xE7B3;" FontFamily="{StaticResource Font.Icons}" FontSize="18" Foreground="{StaticResource Brush.HeaderLink}" VerticalAlignment="Center" />
+                    <TextBlock Text="VisionRedact Studio" FontSize="16" FontWeight="Bold" Foreground="White" Margin="10,0,0,0" VerticalAlignment="Center" />
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Style="{StaticResource Button.HeaderLink}" Command="{Binding OpenProjectCommand}" ToolTip="Open a saved review project (Ctrl+Shift+O)" Content="Open project" />
+                    <Button Style="{StaticResource Button.HeaderLink}" Margin="4,0,0,0" Command="{Binding SaveProjectCommand}" ToolTip="Save detections, review decisions and regions (Ctrl+S)" Content="Save project" />
+                    <Button Style="{StaticResource Button.HeaderLink}" Margin="4,0,0,0" Command="{Binding ExportCommand}" ToolTip="Export a redacted copy; the source is never modified (Ctrl+E)" AutomationProperties.Name="Export redacted video">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xEDE1;" FontFamily="{StaticResource Font.Icons}" VerticalAlignment="Center" />
+                            <TextBlock Text="Export" Margin="8,0,0,0" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource Button.HeaderPill}" Margin="10,0,0,0" Command="{Binding OpenVideoCommand}" ToolTip="Open a video (Ctrl+O)"
+                            AutomationProperties.Name="Open video">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE8E5;" FontFamily="{StaticResource Font.Icons}" VerticalAlignment="Center" />
+                            <TextBlock Text="Open video" Margin="8,0,0,0" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Native runtime failure banner: deployment problems are visible, not a crash. -->
+        <Border DockPanel.Dock="Top" Background="{StaticResource Brush.Danger}" Padding="16,8"
+                Visibility="{Binding ShowRuntimeError, Converter={StaticResource BoolToVisibility}}">
+            <TextBlock Text="{Binding RuntimeStatusText}" Foreground="White" TextWrapping="Wrap" />
+        </Border>
+
+        <!-- Status bar -->
+        <Border DockPanel.Dock="Bottom" Background="{StaticResource Brush.Surface}" BorderBrush="{StaticResource Brush.Border}" BorderThickness="0,1,0,0" Padding="16,5">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Right" Text="{Binding RuntimeStatusText}" ToolTip="{Binding RuntimeStatusDetail}" Style="{StaticResource Text.Caption}" VerticalAlignment="Center" />
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="0,0,16,0" Visibility="{Binding IsExporting, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock Text="{Binding JobText}" Style="{StaticResource Text.Caption}" VerticalAlignment="Center" />
+                    <ProgressBar Width="140" Height="5" Margin="8,0" Minimum="0" Maximum="1" Value="{Binding JobProgress, Mode=OneWay}" VerticalAlignment="Center"
+                                 Foreground="{StaticResource Brush.Accent}" Background="{StaticResource Brush.SurfaceRaised}" BorderThickness="0" />
+                    <Button Style="{StaticResource Button.Default}" Padding="8,1" FontSize="11" Content="Cancel" Command="{Binding CancelExportCommand}" Focusable="False" />
+                </StackPanel>
+                <TextBlock Text="{Binding StatusText}" Style="{StaticResource Text.Caption}" TextWrapping="Wrap" VerticalAlignment="Center" />
+            </DockPanel>
+        </Border>
+
+        <!-- Inspector: one Prism region, navigated between views (INavigationAware controls their lifetime work). -->
+        <Border DockPanel.Dock="Right" Width="440" Background="{StaticResource Brush.Surface}" BorderBrush="{StaticResource Brush.Border}" BorderThickness="1,0,0,0">
+            <DockPanel>
+                <Border DockPanel.Dock="Top" BorderBrush="{StaticResource Brush.Border}" BorderThickness="0,0,0,1" Padding="8,0">
+                    <!-- Tab strip = ListBox: SelectedItem is two-way bound, so mouse, keyboard and UI Automation all
+                         select through the same path (the view model setter), which performs region navigation. -->
+                    <ListBox ItemsSource="{Binding InspectorTabs}" SelectedItem="{Binding SelectedInspectorTab}"
+                             DisplayMemberPath="Title" Background="Transparent" BorderThickness="0"
+                             ItemContainerStyle="{StaticResource ListBoxItem.Tab}"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             AutomationProperties.Name="Inspector tabs">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                    </ListBox>
+                </Border>
+                <ContentControl prism:RegionManager.RegionName="{x:Static wpf:RegionNames.Inspector}" />
+            </DockPanel>
+        </Border>
+
+        <!-- Player -->
+        <ContentControl prism:RegionManager.RegionName="{x:Static wpf:RegionNames.Player}" />
+    </DockPanel>
+</Window>

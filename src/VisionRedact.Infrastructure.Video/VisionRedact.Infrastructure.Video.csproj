@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Emgu CV adapter: the only place (with Infrastructure.AI later) that touches OpenCV types.
+    C# -> Emgu.CV wrapper -> cvextern.dll -> native OpenCV (+ opencv_videoio_ffmpeg plugin).
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>VisionRedact.Infrastructure.Video</RootNamespace>
+    <RequiresNativeX64>true</RequiresNativeX64>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VisionRedact.Application\VisionRedact.Application.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Emgu.CV" />
+    <PackageReference Include="Emgu.CV.runtime.windows" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="VisionRedact.IntegrationTests" />
+    <InternalsVisibleTo Include="VisionRedact.Benchmarks" />
+  </ItemGroup>
+</Project>

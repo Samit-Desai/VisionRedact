@@ -1,0 +1,83 @@
+<UserControl x:Class="VisionRedact.Presentation.Wpf.Features.Diagnostics.DiagnosticsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:diag="clr-namespace:VisionRedact.Presentation.Wpf.Features.Diagnostics"
+             xmlns:controls="clr-namespace:VisionRedact.Presentation.Wpf.Controls"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=diag:DiagnosticsViewModel}"
+             prism:ViewModelLocator.AutoWireViewModel="True">
+
+    <UserControl.Resources>
+        <!-- grouped by Group, no extra view-model structure -->
+        <CollectionViewSource x:Key="GroupedMetrics" Source="{Binding Items}">
+            <CollectionViewSource.GroupDescriptions>
+                <PropertyGroupDescription PropertyName="Group" />
+            </CollectionViewSource.GroupDescriptions>
+        </CollectionViewSource>
+    </UserControl.Resources>
+
+    <DockPanel Margin="16">
+        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,4">
+            <TextBlock Text="DIAGNOSTICS" Style="{StaticResource Text.SectionHeader}" />
+            <TextBlock Text="Measured values, sampled twice per second while this panel is open." Style="{StaticResource Text.Caption}" TextWrapping="Wrap" />
+            <TextBlock Text="Decode-ahead buffer" Style="{StaticResource Text.Caption}" Margin="0,8,0,3" />
+            <!-- not a ProgressBar: it sets its indicator's Width, a layout pass per change.
+                 scaling a full-width bar is render-only, like the playhead -->
+            <Border Height="6" Background="{StaticResource Brush.SurfaceRaised}">
+                <Rectangle Fill="{StaticResource Brush.Highlight}" RenderTransformOrigin="0,0.5">
+                    <Rectangle.RenderTransform>
+                        <ScaleTransform ScaleX="{Binding DecodeAheadFill, Mode=OneWay}" />
+                    </Rectangle.RenderTransform>
+                </Rectangle>
+            </Border>
+
+        </StackPanel>
+
+        <ItemsControl ItemsSource="{Binding Source={StaticResource GroupedMetrics}}">
+            <ItemsControl.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate>
+                            <!-- line above each group heading -->
+                            <StackPanel Margin="0,8,14,3">
+                                <Border Height="1" Background="{StaticResource Brush.Border}" Margin="0,0,0,6" />
+                                <TextBlock Text="{Binding Name}" Style="{StaticResource Text.SectionHeader}" Foreground="{StaticResource Brush.Highlight}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                </GroupStyle>
+            </ItemsControl.GroupStyle>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type diag:MetricItem}">
+                    <StackPanel>
+                        <!-- fainter line before each small section. fixed per row, it never changes while values update -->
+                        <Border Height="1" Background="{StaticResource Brush.Border}" Opacity="0.6" Margin="6,2,14,3"
+                                Visibility="{Binding StartsSection, Converter={StaticResource BoolToVisibility}}" />
+                        <Grid Margin="0,0,14,3" ToolTip="{Binding Hint}" Background="Transparent">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding Label}" Style="{StaticResource Text.Caption}" FontSize="11.5" />
+                            <!-- RenderOnlyText: a TextBlock here re-measured its row on every refresh, and the whole list when a
+                                 value got wider. this worked great, no layout pass while values update.
+                                 a long value (the GPU name) still wraps instead of running over its label -->
+                            <controls:RenderOnlyText Grid.Column="1" Text="{Binding Value}" FontFamily="{StaticResource Font.Mono}" FontSize="11.5"
+                                                     Foreground="{StaticResource Brush.Text}" Margin="12,0,0,0" TextAlignment="Right" TextWrapping="Wrap" />
+                        </Grid>
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.Template>
+                <ControlTemplate TargetType="ItemsControl">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsPresenter />
+                    </ScrollViewer>
+                </ControlTemplate>
+            </ItemsControl.Template>
+        </ItemsControl>
+    </DockPanel>
+</UserControl>

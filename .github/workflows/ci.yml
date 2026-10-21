@@ -1,0 +1,30 @@
+name: CI
+
+# Builds the whole solution (warnings are errors) and runs the fast tests. Domain and Application tests run on fakes:
+# no GPU, no video files, no AI models, no FFmpeg, so they work on a clean runner. The integration tests need the
+# native runtimes, models and media that are downloaded by scripts/ and are run locally.
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build
+        run: dotnet build VisionRedact.slnx -c Release
+
+      - name: Domain tests
+        run: dotnet test tests/VisionRedact.Domain.Tests -c Release --no-build
+
+      # Three tests assert a wall-clock limit (Category=Timing). A shared 2-core runner is too noisy for them, so
+      # they run locally on the reference laptop; every other Application test runs here.
+      - name: Application tests
+        run: dotnet test tests/VisionRedact.Application.Tests -c Release --no-build --filter "Category!=Timing"

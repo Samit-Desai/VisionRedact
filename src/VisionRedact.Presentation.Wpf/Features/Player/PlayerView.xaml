@@ -1,0 +1,124 @@
+<UserControl x:Class="VisionRedact.Presentation.Wpf.Features.Player.PlayerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:controls="clr-namespace:VisionRedact.Presentation.Wpf.Controls"
+             xmlns:player="clr-namespace:VisionRedact.Presentation.Wpf.Features.Player"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=player:PlayerViewModel}"
+             d:DesignWidth="1000" d:DesignHeight="700"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Focusable="True"
+             FocusVisualStyle="{x:Null}">
+
+    <UserControl.InputBindings>
+        <KeyBinding Key="Space" Command="{Binding PlayPauseCommand}" />
+        <KeyBinding Key="Right" Command="{Binding StepForwardCommand}" />
+        <KeyBinding Key="Left" Command="{Binding StepBackwardCommand}" />
+        <KeyBinding Key="Home" Command="{Binding GoToStartCommand}" />
+        <KeyBinding Key="End" Command="{Binding GoToEndCommand}" />
+        <KeyBinding Key="Delete" Command="{Binding DeleteSelectedRegionCommand}" />
+        <KeyBinding Key="D" Command="{Binding DetectFrameCommand}" />
+    </UserControl.InputBindings>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" Margin="0,0,0,8" LastChildFill="True">
+            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                <Button Style="{StaticResource Button.Default}" Command="{Binding DetectFrameCommand}" Focusable="False" AutomationProperties.Name="Detect faces on this frame" ToolTip="Run the selected model(s) on this frame (D)">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE8B3;" FontFamily="{StaticResource Font.Icons}" VerticalAlignment="Center" />
+                        <TextBlock Text="Detect this frame" Margin="8,0,0,0" />
+                    </StackPanel>
+                </Button>
+                <ToggleButton Style="{StaticResource Toggle.Tool}" Margin="8,0,0,0" IsChecked="{Binding Editor.IsDrawing}" AutomationProperties.Name="Draw regions mode" ToolTip="Drag on the video to add a manual redaction region">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE70F;" FontFamily="{StaticResource Font.Icons}" VerticalAlignment="Center" />
+                        <TextBlock Text="Draw regions" Margin="8,0,0,0" />
+                    </StackPanel>
+                </ToggleButton>
+                <CheckBox Margin="14,0,0,0" VerticalAlignment="Center" Focusable="False" IsChecked="{Binding ShowDetections}" Content="Show detections" />
+                <CheckBox Margin="14,0,0,0" VerticalAlignment="Center" Focusable="False" IsChecked="{Binding Editor.IsPreviewEnabled}" Content="Preview redactions" />
+            </StackPanel>
+            <TextBlock Text="{Binding ToolStatus}" Style="{StaticResource Text.Caption}" VerticalAlignment="Center" Margin="14,0,0,0" TextWrapping="Wrap" />
+        </DockPanel>
+
+        <!-- frame, AI boxes, regions, mouse layer: all in VideoSurface -->
+        <Grid Grid.Row="1">
+            <controls:VideoSurface x:Name="Surface" AutomationProperties.Name="Video picture"
+                                   FrameSource="{Binding Frame}"
+                                   VideoWidth="{Binding VideoWidth}" 
+                                   VideoHeight="{Binding VideoHeight}"
+                                   DetectionBoxes="{Binding DetectionBoxes}"
+                                   RedactionBoxes="{Binding RedactionBoxes}"
+                                   ShowDetections="{Binding ShowDetections}"
+                                   IsDrawingEnabled="{Binding Editor.IsDrawing}"
+                                   RegionDrawnCommand="{Binding RegionDrawnCommand}"
+                                   RegionChangedCommand="{Binding RegionChangedCommand}"
+                                   RegionSelectedCommand="{Binding RegionSelectedCommand}" />
+
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"
+                        Visibility="{Binding ShowPlaceholder, Converter={StaticResource BoolToVisibility}}">
+                <TextBlock Text="&#xE714;" FontFamily="{StaticResource Font.Icons}" FontSize="48" HorizontalAlignment="Center" Foreground="{StaticResource Brush.TextMuted}" />
+                <TextBlock Text="Open a video to begin" Margin="0,12,0,0" FontSize="16" HorizontalAlignment="Center" Foreground="{StaticResource Brush.TextMuted}" />
+                <TextBlock Text="The source file is never modified." Margin="0,4,0,0" HorizontalAlignment="Center" Style="{StaticResource Text.Caption}" />
+            </StackPanel>
+
+            <Border VerticalAlignment="Bottom" Margin="12" Padding="12,8" CornerRadius="4" Background="{StaticResource Brush.Danger}"
+                    Visibility="{Binding HasError, Converter={StaticResource BoolToVisibility}}">
+                <TextBlock Text="{Binding ErrorText}" Foreground="White" TextWrapping="Wrap" />
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="2" Margin="0,10,0,0" Style="{StaticResource Panel.Card}" Padding="10,6">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Style="{StaticResource Button.Transport}" Content="&#xE892;" AutomationProperties.Name="Go to start" Command="{Binding GoToStartCommand}" ToolTip="Go to start (Home)" />
+                    <Button Style="{StaticResource Button.Transport}" Content="&#xE76B;" AutomationProperties.Name="Previous frame" Command="{Binding StepBackwardCommand}" ToolTip="Previous frame (Left)" />
+                    <Button Style="{StaticResource Button.TransportPrimary}" Margin="4,0" Content="{Binding PlayPauseGlyph}" AutomationProperties.Name="Play or pause" Command="{Binding PlayPauseCommand}" ToolTip="{Binding PlayPauseToolTip}" />
+                    <Button Style="{StaticResource Button.Transport}" Content="&#xE76C;" AutomationProperties.Name="Next frame" Command="{Binding StepForwardCommand}" ToolTip="Next frame (Right)" />
+                    <Button Style="{StaticResource Button.Transport}" Content="&#xE893;" AutomationProperties.Name="Go to end" Command="{Binding GoToEndCommand}" ToolTip="Go to end (End)" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Margin="14,0" VerticalAlignment="Center" MinWidth="120">
+                    <!-- RenderOnlyText: these change every frame while playing, a TextBlock = a layout pass per frame -->
+                    <controls:RenderOnlyText Text="{Binding PositionText}" FontFamily="{StaticResource Font.Mono}" FontSize="15"
+                                             Foreground="{StaticResource Brush.Text}" Width="150" Height="20" />
+                    <controls:RenderOnlyText Text="{Binding FrameText}" FontSize="11" Foreground="{StaticResource Brush.TextMuted}" Width="150" Height="16" />
+                </StackPanel>
+
+                <!-- in frames. scrub start / end come in as commands, no code-behind -->
+                <controls:VideoTimelineControl Grid.Column="2" VerticalAlignment="Center" AutomationProperties.Name="Timeline"
+                                               Maximum="{Binding MaximumFrame}"
+                                               Position="{Binding PositionFrame}"
+                                               FramesPerSecond="{Binding FramesPerSecond}"
+                                               Markers="{Binding TimelineMarkers}"
+                                               Ranges="{Binding TimelineRanges}"
+                                               SelectionStart="{Binding SelectionStart}"
+                                               SelectionEnd="{Binding SelectionEnd}"
+                                               IsEnabled="{Binding HasVideo}"
+                                               ScrubStartedCommand="{Binding BeginScrubCommand}"
+                                               ScrubCompletedCommand="{Binding EndScrubCommand}"
+                                               HoverFrameCommand="{Binding HoverFrameCommand}"
+                                               HoverPreview="{Binding HoverPreview}"
+                                               HoverText="{Binding HoverText}" />
+
+                <TextBlock Grid.Column="3" Margin="14,0,4,0" VerticalAlignment="Center" Text="{Binding DurationText}" Style="{StaticResource Text.Mono}" Foreground="{StaticResource Brush.TextMuted}" />
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

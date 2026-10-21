@@ -1,0 +1,83 @@
+<UserControl x:Class="VisionRedact.Presentation.Wpf.Features.Redaction.RedactionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:red="clr-namespace:VisionRedact.Presentation.Wpf.Features.Redaction"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=red:RedactionViewModel}"
+             d:DesignWidth="380" d:DesignHeight="800"
+             prism:ViewModelLocator.AutoWireViewModel="True">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="16,12">
+            <TextBlock Text="AI DETECTIONS" Style="{StaticResource Text.SectionHeader}" />
+            <TextBlock Text="Pending and approved detections are redacted; rejected ones are not (fail-safe)." Style="{StaticResource Text.Caption}" TextWrapping="Wrap" />
+            <Grid Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="44" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <TextBlock Text="Effect" Style="{StaticResource Text.Caption}" VerticalAlignment="Center" />
+                <ComboBox Grid.Column="1" Grid.ColumnSpan="2" ItemsSource="{Binding Effects}" SelectedItem="{Binding DetectionEffect}" />
+                <TextBlock Grid.Row="1" Text="Padding" Style="{StaticResource Text.Caption}" VerticalAlignment="Center" Margin="0,8,0,0" />
+                <Slider Grid.Row="1" Grid.Column="1" Minimum="0" Maximum="50" Value="{Binding PaddingPercent}" Margin="0,8,0,0" IsSnapToTickEnabled="True" TickFrequency="5" />
+                <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding PaddingPercent, StringFormat={}{0:0}%}" Style="{StaticResource Text.Mono}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,8,0,0" />
+                <TextBlock Grid.Row="2" Text="Strength" Style="{StaticResource Text.Caption}" VerticalAlignment="Center" Margin="0,8,0,0" />
+                <Slider Grid.Row="2" Grid.Column="1" Minimum="10" Maximum="100" Value="{Binding StrengthPercent}" Margin="0,8,0,0" IsSnapToTickEnabled="True" TickFrequency="10" />
+                <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding StrengthPercent, StringFormat={}{0:0}%}" Style="{StaticResource Text.Mono}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,8,0,0" />
+            </Grid>
+
+            <CheckBox Margin="0,12,0,0" IsChecked="{Binding Editor.IsPreviewEnabled}" Content="Preview redactions on the video (what export produces)" />
+
+            <Border BorderBrush="{StaticResource Brush.Border}" BorderThickness="0,1,0,0" Margin="0,14,0,10" />
+            <TextBlock Text="MANUAL REGIONS" Style="{StaticResource Text.SectionHeader}" />
+            <TextBlock Text="Cover what AI missed: turn on drawing, then drag on the video. Drag a region to move it, its corner to resize, Delete to remove."
+                       Style="{StaticResource Text.Caption}" TextWrapping="Wrap" />
+            <ToggleButton Style="{StaticResource Toggle.Tool}" HorizontalAlignment="Left" Margin="0,8,0,8" IsChecked="{Binding Editor.IsDrawing}" AutomationProperties.Name="Draw regions mode">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE70F;" FontFamily="{StaticResource Font.Icons}" VerticalAlignment="Center" />
+                    <TextBlock Text="Draw regions" Margin="8,0,0,0" />
+                </StackPanel>
+            </ToggleButton>
+
+            <ListBox ItemsSource="{Binding Regions}" SelectedItem="{Binding SelectedRegion}" MaxHeight="220" Background="Transparent" BorderThickness="0"
+                     HorizontalContentAlignment="Stretch" AutomationProperties.Name="Redaction regions">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="{x:Type red:RegionItem}">
+                        <StackPanel Margin="0,2">
+                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding Range}" Style="{StaticResource Text.Caption}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <StackPanel Margin="0,10,0,0" Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibility}}">
+                <TextBlock Text="SELECTED REGION" Style="{StaticResource Text.SectionHeader}" />
+                <ComboBox ItemsSource="{Binding Effects}" SelectedItem="{Binding SelectedEffect}" />
+                <UniformGrid Columns="2" Margin="0,8,0,0">
+                    <Button Style="{StaticResource Button.Default}" Margin="0,0,4,4" Content="Start = current frame" Command="{Binding SetStartCommand}" />
+                    <Button Style="{StaticResource Button.Default}" Margin="4,0,0,4" Content="End = current frame" Command="{Binding SetEndCommand}" />
+                    <Button Style="{StaticResource Button.Default}" Margin="0,0,4,0" Content="Whole video" Command="{Binding WholeVideoCommand}" />
+                    <Button Style="{StaticResource Button.Default}" Margin="4,0,0,0" Content="Go to start" Command="{Binding GoToStartCommand}" />
+                </UniformGrid>
+                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                    <Button Style="{StaticResource Button.Primary}" Content="Track region forward" Command="{Binding TrackCommand}"
+                            ToolTip="Follow the object from the region's start frame with OpenCV visual tracking (KCF)" />
+                    <Button Style="{StaticResource Button.Default}" Margin="8,0,0,0" Content="Cancel" Command="{Binding CancelTrackingCommand}"
+                            Visibility="{Binding IsTracking, Converter={StaticResource BoolToVisibility}}" />
+                    <Button Style="{StaticResource Button.Default}" Margin="8,0,0,0" Content="Delete region" Command="{Binding DeleteCommand}" />
+                </StackPanel>
+                <TextBlock Text="{Binding TrackingStatus}" Style="{StaticResource Text.Caption}" TextWrapping="Wrap" Margin="0,6,0,0" />
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

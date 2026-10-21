@@ -1,0 +1,47 @@
+# VisionRedact benchmarks — 2026-09-24 03:44
+CPU cores: 22 logical · .NET 10.0.12 · x64 · Release=True
+
+Synthetic source: 1920x1080 MJPG, 900 frames (22 MB)
+Real source: D:\PRIVATE\AVCHD\BDMV\STREAM\ANCL SF\1.MTS
+
+## B1 — Skipping unsampled frames: ReadNext()+Dispose vs Skip()  (1 of every 12 frames analyzed)
+| synthetic 1080p MJPG | ReadNext+Dispose |   174.8 frames/s |     0.1 MB managed alloc | native frame allocs 900 |
+| synthetic 1080p MJPG | Skip()           |   415.7 frames/s |     0.0 MB managed alloc | native frame allocs 75 |
+| real MTS | ReadNext+Dispose |   231.1 frames/s |     0.2 MB managed alloc | native frame allocs 1800 |
+| real MTS | Skip()           |   614.9 frames/s |     0.0 MB managed alloc | native frame allocs 150 |
+
+## B2 — Preprocessing 640x640 tensor: allocate per frame (baseline) vs reused buffers (current), 300 frames
+| naive  |   3.18 ms/frame |   4800.6 KB alloc/frame | Gen0 99 Gen1 99 Gen2 99 |
+| reused |   1.87 ms/frame |      0.3 KB alloc/frame | Gen0 0 Gen1 0 Gen2 0 |
+
+## B3 — Detect() latency on a 1920x1080 frame per device (200 runs after 10 warm-up)
+| UltraFace RFB-320 (fast)   | CPU                                                | input 320x240 | p50    5.7 ms | p95    7.8 ms | 175.4 inferences/s |    1.0 KB managed alloc/call |
+| UltraFace RFB-320 (fast)   | DirectML: Intel(R) Arc(TM) Pro Graphics            | input 320x240 | p50    4.8 ms | p95    7.4 ms | 209.2 inferences/s |    1.0 KB managed alloc/call |
+| UltraFace RFB-320 (fast)   | DirectML: NVIDIA RTX 3500 Ada Generation Laptop GPU | input 320x240 | p50    2.7 ms | p95    4.2 ms | 374.6 inferences/s |    1.0 KB managed alloc/call |
+| YOLO11n face (accurate)    | CPU                                                | input 640x640 | p50   24.9 ms | p95   28.8 ms |  40.2 inferences/s |    1.4 KB managed alloc/call |
+| YOLO11n face (accurate)    | DirectML: Intel(R) Arc(TM) Pro Graphics            | input 640x640 | p50   13.4 ms | p95   16.0 ms |  74.6 inferences/s |    1.4 KB managed alloc/call |
+| YOLO11n face (accurate)    | DirectML: NVIDIA RTX 3500 Ada Generation Laptop GPU | input 640x640 | p50    5.3 ms | p95    7.1 ms | 190.1 inferences/s |    1.4 KB managed alloc/call |
+
+## B4 — AnalysisJob end to end (bounded channel capacity 4), 450 frames, every frame
+| UltraFace RFB-320 (fast)   | CPU                                                     |  115.4 frames/s | inference   7.9 ms | max queue 4/4 | max live frames 6 | Completed |
+| UltraFace RFB-320 (fast)   | GPU: NVIDIA RTX 3500 Ada Generation Laptop GPU (11.7 GB) |  166.0 frames/s | inference   3.8 ms | max queue 1/4 | max live frames 1 | Completed |
+| YOLO11n face (accurate)    | CPU                                                     |   33.4 frames/s | inference  29.4 ms | max queue 4/4 | max live frames 6 | Completed |
+| YOLO11n face (accurate)    | GPU: NVIDIA RTX 3500 Ada Generation Laptop GPU (11.7 GB) |  179.1 frames/s | inference   5.2 ms | max queue 4/4 | max live frames 6 | Completed |
+
+## B5 — Memory soak: playback session + analysis (UltraFace, every frame) over 5,400 frames (6 passes)
+| samples 78 over 41 s | private bytes after warm-up: min 254 MB, max 309 MB, last 261 MB | max live frames 10 |
+
+## B6 — Repository and export
+| 50,000 detections | insert 48 ms | 100k display lookups 11 ms (0.11 µs each) | snapshot 5 ms (50,000) |
+| export Mp4      | mp4v | 900 frames in 12.3 s = 73.2 frames/s (1080p, blur on every frame) |
+| export AviMjpeg | MJPG | 900 frames in 15.9 s = 56.5 frames/s (1080p, blur on every frame) |
+
+## B7 — Gaussian blur of a 576x324 region (strength 0.8), 100 runs
+| direct kernel (baseline)       |   66.78 ms per region |
+| reduced resolution (current)   |    1.53 ms per region |
+
+## B8 — Box accuracy between samples: 2.MTS, 3600 frames, 1 of 12 analyzed, ground truth = YOLO11n face (accurate) on every frame (9,963 faces) on DirectML: NVIDIA RTX 3500 Ada Generation Laptop GPU
+| method | tracks | faces between samples | covered by box (+20 % padding) | centre error p50 | p95 | visible drift > 8 px (box within 100 px) |
+| hold (no interpolation)                    |      — |   9,135 |   78.8 % |    2.5 px |  356.2 px |  17.9 % |
+| interpolate, IoU + prediction              |    262 |   9,135 |   78.9 % |    1.1 px |  357.0 px |  13.8 % |
+| interpolate, IoU + prediction + distance   |     80 |   9,135 |   83.0 % |    1.0 px |  357.4 px |   4.3 % |

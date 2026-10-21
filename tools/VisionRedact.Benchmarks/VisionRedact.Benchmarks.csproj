@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Measurement harness behind docs/Performance.md and docs/Profiling.md. Not a test: produces numbers.
+    Run in Release: dotnet run, configuration Release, project tools/VisionRedact.Benchmarks, optional real video path.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <RequiresNativeX64>true</RequiresNativeX64>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\VisionRedact.Application\VisionRedact.Application.csproj" />
+    <ProjectReference Include="..\..\src\VisionRedact.Infrastructure.Video\VisionRedact.Infrastructure.Video.csproj" />
+    <ProjectReference Include="..\..\src\VisionRedact.Infrastructure.AI\VisionRedact.Infrastructure.AI.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Emgu.CV" />
+    <PackageReference Include="Emgu.CV.runtime.windows" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\models\*.onnx" LinkBase="models" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\native\openh264-*.dll" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    <None Include="..\..\ffmpeg\bin\*" Exclude="..\..\ffmpeg\bin\ffplay.exe" Link="ffmpeg\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+</Project>

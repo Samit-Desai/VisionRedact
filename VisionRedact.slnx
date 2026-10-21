@@ -1,0 +1,67 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/VisionRedact.Domain/VisionRedact.Domain.csproj" />
+    <Project Path="src/VisionRedact.Application/VisionRedact.Application.csproj" />
+    <Project Path="src/VisionRedact.Infrastructure.Video/VisionRedact.Infrastructure.Video.csproj" />
+    <Project Path="src/VisionRedact.Infrastructure.AI/VisionRedact.Infrastructure.AI.csproj" />
+    <Project Path="src/VisionRedact.Infrastructure.Persistence/VisionRedact.Infrastructure.Persistence.csproj" />
+    <Project Path="src/VisionRedact.Presentation.Wpf/VisionRedact.Presentation.Wpf.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/VisionRedact.Domain.Tests/VisionRedact.Domain.Tests.csproj" />
+    <Project Path="tests/VisionRedact.Application.Tests/VisionRedact.Application.Tests.csproj" />
+    <Project Path="tests/VisionRedact.IntegrationTests/VisionRedact.IntegrationTests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/VisionRedact.Benchmarks/VisionRedact.Benchmarks.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Folder Name="/docs/">
+    <File Path="docs/AiPipeline.md" />
+    <File Path="docs/Architecture.md" />
+    <File Path="docs/benchmarks-baseline.txt" />
+    <File Path="docs/EngineeringGuidelines.md" />
+    <File Path="docs/ErrorHandling.md" />
+    <File Path="docs/ExportPipeline.md" />
+    <File Path="docs/ManagedNativeInterop.md" />
+    <File Path="docs/MemoryManagement.md" />
+    <File Path="docs/Performance.md" />
+    <File Path="docs/Profiling.md" />
+    <File Path="docs/SystemDesign.md" />
+    <File Path="docs/TestingStrategy.md" />
+    <File Path="docs/ThreadingModel.md" />
+    <File Path="docs/Tradeoffs.md" />
+    <File Path="docs/VideoPipeline.md" />
+    <File Path="docs/Walkthrough.md" />
+  </Folder>
+  <Folder Name="/docs/adr/">
+    <File Path="docs/adr/0001-pragmatic-clean-architecture.md" />
+    <File Path="docs/adr/0002-emgu-cv-for-opencv.md" />
+    <File Path="docs/adr/0003-prism-dryioc.md" />
+    <File Path="docs/adr/0004-onnx-runtime-multi-model.md" />
+    <File Path="docs/adr/0005-bounded-channels.md" />
+    <File Path="docs/adr/0006-separate-playback-and-analysis.md" />
+    <File Path="docs/adr/0007-separate-export-pipeline.md" />
+    <File Path="docs/adr/0008-native-frame-ownership.md" />
+    <File Path="docs/adr/0009-preview-frame-dropping.md" />
+    <File Path="docs/adr/0010-eventaggregator-coarse-events-only.md" />
+    <File Path="docs/adr/0011-wpf-rendering-writeablebitmap.md" />
+    <File Path="docs/adr/0012-normalized-coordinates.md" />
+    <File Path="docs/adr/0013-frame-sampling.md" />
+    <File Path="docs/adr/0014-human-review-fail-safe.md" />
+    <File Path="docs/adr/0015-redaction-effects-strategy.md" />
+    <File Path="docs/adr/0016-detection-vs-track.md" />
+    <File Path="docs/adr/0017-directml-gpu-inference.md" />
+    <File Path="docs/adr/0018-opencv-only-media-mvp.md" />
+    <File Path="docs/adr/0019-export-snapshot-atomic-output.md" />
+    <File Path="docs/adr/README.md" />
+  </Folder>
+  <Folder Name="/scripts/">
+    <File Path="scripts/download-model.ps1" />
+    <File Path="scripts/download-openh264.ps1" />
+  </Folder>
+</Solution>

@@ -1,0 +1,32 @@
+<Project>
+  <!-- Central package management: one version per dependency across the solution. -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Native computer vision (managed wrapper + native cvextern.dll / OpenCV / FFmpeg videoio plugin) -->
+    <PackageVersion Include="Emgu.CV" Version="4.13.0.5924" />
+    <PackageVersion Include="Emgu.CV.runtime.windows" Version="4.13.0.5924" />
+
+    <!--
+      AI inference. The DirectML build contains both the CPU and the DirectML (DirectX 12 GPU) execution providers.
+      Its latest release is 1.24.x (DirectML is in sustained engineering); the CPU-only package is newer (1.31) but has
+      no GPU support. See docs/adr/0017-directml-gpu-inference.md.
+    -->
+    <PackageVersion Include="Microsoft.ML.OnnxRuntime.DirectML" Version="1.24.4" />
+
+    <!-- WPF composition. Prism 8.1.97 is MIT licensed; see docs/adr/0003-prism-dryioc.md -->
+    <PackageVersion Include="Prism.DryIoc" Version="8.1.97" />
+
+    <!-- Logging -->
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.12" />
+    <PackageVersion Include="Serilog.Extensions.Logging" Version="10.0.0" />
+    <PackageVersion Include="Serilog.Sinks.File" Version="7.0.0" />
+
+    <!-- Testing -->
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+    <PackageVersion Include="Microsoft.Extensions.TimeProvider.Testing" Version="10.10.0" />
+  </ItemGroup>
+</Project>

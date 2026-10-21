@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Project (.vrproject) persistence: System.Text.Json DTOs, versioned schema, atomic writes. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>VisionRedact.Infrastructure.Persistence</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VisionRedact.Application\VisionRedact.Application.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="VisionRedact.IntegrationTests" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Real native OpenCV through Emgu CV against small synthetic videos generated at test time. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RequiresNativeX64>true</RequiresNativeX64>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="Emgu.CV" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\VisionRedact.Application\VisionRedact.Application.csproj" />
+    <ProjectReference Include="..\..\src\VisionRedact.Infrastructure.Video\VisionRedact.Infrastructure.Video.csproj" />
+    <ProjectReference Include="..\..\src\VisionRedact.Infrastructure.AI\VisionRedact.Infrastructure.AI.csproj" />
+    <ProjectReference Include="..\..\src\VisionRedact.Infrastructure.Persistence\VisionRedact.Infrastructure.Persistence.csproj" />
+  </ItemGroup>
+  <!-- Real model + model-zoo reference data (downloaded by scripts/download-model.ps1). Tests skip if absent. -->
+  <ItemGroup>
+    <None Include="..\..\models\*.onnx" LinkBase="models" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\models\testdata\version-RFB-320\test_data_set_0\*.pb" LinkBase="testdata" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <!-- FFmpeg (scripts/download-ffmpeg.ps1). FFmpeg export tests skip if absent. -->
+  <ItemGroup>
+    <None Include="..\..\ffmpeg\bin\*" Exclude="..\..\ffmpeg\bin\ffplay.exe" Link="ffmpeg\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+</Project>

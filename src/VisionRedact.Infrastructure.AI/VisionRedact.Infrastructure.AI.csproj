@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    ONNX Runtime adapter (inference only). Uses Emgu CV for native resize/letterbox of frames.
+    C# -> Microsoft.ML.OnnxRuntime -> onnxruntime.dll (CPU or DirectML execution provider) -> DirectML.dll -> D3D12 GPU.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>VisionRedact.Infrastructure.AI</RootNamespace>
+    <RequiresNativeX64>true</RequiresNativeX64>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VisionRedact.Application\VisionRedact.Application.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ML.OnnxRuntime.DirectML" />
+    <PackageReference Include="Emgu.CV" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="VisionRedact.IntegrationTests" />
+    <InternalsVisibleTo Include="VisionRedact.Benchmarks" />
+  </ItemGroup>
+</Project>

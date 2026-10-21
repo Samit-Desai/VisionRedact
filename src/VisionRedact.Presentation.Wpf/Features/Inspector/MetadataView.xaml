@@ -1,0 +1,34 @@
+<UserControl x:Class="VisionRedact.Presentation.Wpf.Features.Inspector.MetadataView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:inspector="clr-namespace:VisionRedact.Presentation.Wpf.Features.Inspector"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=inspector:MetadataViewModel}"
+             d:DesignWidth="320" d:DesignHeight="500"
+             prism:ViewModelLocator.AutoWireViewModel="True">
+
+    <UserControl.Resources>
+        <!-- every MetadataItem: label + value -->
+        <DataTemplate DataType="{x:Type inspector:MetadataItem}">
+            <Grid Margin="0,0,0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding Label}" Style="{StaticResource Text.Caption}" VerticalAlignment="Top" Margin="0,1,0,0" />
+                <TextBlock Grid.Column="1" Text="{Binding Value}" TextWrapping="Wrap" ToolTip="{Binding Value}" />
+            </Grid>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16">
+        <StackPanel>
+            <TextBlock Text="VIDEO" Style="{StaticResource Text.SectionHeader}" />
+            <TextBlock Text="{Binding FileName}" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,14" />
+            <ItemsControl ItemsSource="{Binding Items}" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

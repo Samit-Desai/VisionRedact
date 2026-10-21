@@ -1,0 +1,28 @@
+<Project>
+  <!--
+    Shared build settings for every project in the solution.
+    Warnings are errors so that nullable/async/dispose analyzer findings cannot silently accumulate.
+  -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <Deterministic>true</Deterministic>
+    <Company>VisionRedact</Company>
+    <Product>VisionRedact Studio</Product>
+  </PropertyGroup>
+
+  <!--
+    Native OpenCV (cvextern.dll) ships as x64 only in Emgu.CV.runtime.windows.
+    Anything that can load native code (infrastructure adapters, the WPF host, integration tests)
+    opts in with <RequiresNativeX64>true</RequiresNativeX64>. Domain/Application stay AnyCPU.
+  -->
+  <PropertyGroup Condition="'$(RequiresNativeX64)' == 'true'">
+    <PlatformTarget>x64</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+</Project>

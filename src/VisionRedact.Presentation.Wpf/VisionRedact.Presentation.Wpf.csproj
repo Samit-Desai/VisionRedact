@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    WPF composition root (Prism + DryIoc). The only project that knows about every layer.
+    Owns: views, view models, the Dispatcher boundary and the WriteableBitmap presenter.
+  -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.20348.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>VisionRedact.Presentation.Wpf</RootNamespace>
+    <AssemblyName>VisionRedactStudio</AssemblyName>
+    <RequiresNativeX64>true</RequiresNativeX64>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <StartupObject>VisionRedact.Presentation.Wpf.App</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VisionRedact.Application\VisionRedact.Application.csproj" />
+    <ProjectReference Include="..\VisionRedact.Infrastructure.Video\VisionRedact.Infrastructure.Video.csproj" />
+    <ProjectReference Include="..\VisionRedact.Infrastructure.AI\VisionRedact.Infrastructure.AI.csproj" />
+    <ProjectReference Include="..\VisionRedact.Infrastructure.Persistence\VisionRedact.Infrastructure.Persistence.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Prism.DryIoc" />
+    <PackageReference Include="Serilog.Extensions.Logging" />
+    <PackageReference Include="Serilog.Sinks.File" />
+  </ItemGroup>
+  <!-- The ONNX model is downloaded by scripts/download-model.ps1 (not committed) and deployed next to the exe. -->
+  <ItemGroup>
+    <None Include="..\..\models\*.onnx" LinkBase="models" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <!--
+    Optional: Cisco OpenH264 (scripts/download-openh264.ps1, not committed — Cisco's licence requires users to fetch it).
+    OpenCV's FFmpeg plugin loads it from the exe folder to encode H.264; without it, MP4 export uses mp4v.
+  -->
+  <ItemGroup>
+    <None Include="..\..\native\openh264-*.dll" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+  <!-- Optional: FFmpeg (scripts/download-ffmpeg.ps1, not committed) for GPU H.264 export with audio; deployed to ffmpeg\. -->
+  <ItemGroup>
+    <None Include="..\..\ffmpeg\bin\*" Exclude="..\..\ffmpeg\bin\ffplay.exe" Link="ffmpeg\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+</Project>
